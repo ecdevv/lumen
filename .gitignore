@@ -1,0 +1,37 @@
+# Build artifacts
+/target
+Cargo.lock.bak
+
+# insta snapshots
+*.snap.new
+*.pending-snap
+
+# Packaging artifacts (remove packaging/ when ready)
+packaging/
+packaging/pkg/
+packaging/src/
+packaging/*.pkg.tar.*
+packaging/*.tar.gz
+packaging/*.tar.zst
+
+# Rust backup files
+**/*.rs.bk
+
+# Editor / IDE state
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS-level junk
+.DS_Store
+Thumbs.db
+
+# AI tooling
+.claude/settings.local.json
+.serena/
+
+# Secrets / env
+.env
+.env.*
+!.env.example
