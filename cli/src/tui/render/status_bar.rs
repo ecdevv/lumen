@@ -105,8 +105,13 @@ fn bottom_hint_line(app: &AppState) -> Line<'static> {
 /// natural focus zone while typing.
 fn bottom_info_line(app: &AppState) -> Line<'static> {
     let dim = Style::new().add_modifier(Modifier::DIM);
+    let model = if app.cfg.provider.model.is_empty() {
+        "<no model>".to_string()
+    } else {
+        app.cfg.provider.model.clone()
+    };
     Line::from(vec![
-        Span::styled(app.cfg.provider.model.clone(), dim),
+        Span::styled(model, dim),
         Span::styled(STATUS_SEP, dim),
         Span::styled(pretty_path(&app.cwd), dim),
         Span::raw("  "), // right pad before frame edge

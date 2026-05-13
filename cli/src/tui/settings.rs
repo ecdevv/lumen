@@ -115,7 +115,7 @@ impl Field {
         match self {
             Self::ProviderModel => cfg.provider.model.clone(),
             Self::ProviderBaseUrl => cfg.provider.base_url.clone(),
-            Self::ProviderApiKey => cfg.provider.api_key.clone().unwrap_or_default(),
+            Self::ProviderApiKey => cfg.provider.api_key.clone(),
             Self::AutoApply => match cfg.auto_apply {
                 AutoApply::Never => "never".to_string(),
                 AutoApply::Safe => "safe".to_string(),
@@ -144,23 +144,11 @@ impl Field {
                 Ok(())
             }
             Self::ProviderApiKey => {
-                // Empty input clears the key (sets to None); non-empty
-                // stores as Some(value). On-disk this *always* writes
-                // `api_key = ""` (see `to_toml_item`), which figment
-                // re-loads as `Some("")` next startup - so the cleared-
-                // to-None state is transient until the next reload, at
-                // which point it converges to `Some("")`. Both are
-                // equivalent for the bearer-auth code path: HttpProvider
-                // sends no auth header for None, and `Bearer ` (empty)
-                // for `Some("")` - servers that require a real key
-                // reject both with 401, servers that don't care accept
-                // both. The UI mask shows `<none>` for empty/None and
-                // `<redacted>` for any non-empty value.
-                cfg.provider.api_key = if value.is_empty() {
-                    None
-                } else {
-                    Some(value.to_string())
-                };
+                // Empty string is the "unset" sentinel - same shape as
+                // the default. `HttpProvider` is constructed with
+                // `None` when this is empty, so no bearer header is
+                // sent for the local-llama.cpp case.
+                cfg.provider.api_key = value.to_string();
                 Ok(())
             }
             Self::AutoApply => match value {

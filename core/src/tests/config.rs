@@ -48,17 +48,17 @@ fn debug_redacts_api_key_value() {
     let cfg = ProviderConfig {
         base_url: "http://x".into(),
         model: "y".into(),
-        api_key: Some("super-secret-key-123".into()),
+        api_key: "super-secret-key-123".into(),
     };
     let s = format!("{cfg:?}");
     assert!(!s.contains("super-secret-key-123"), "api_key leaked: {s}");
     assert!(s.contains("redacted"), "expected redaction marker: {s}");
-    // None case still shows None so absence is debuggable.
+    // Empty-string case shows <unset> so absence is debuggable.
     let cfg2 = ProviderConfig {
-        api_key: None,
+        api_key: String::new(),
         ..cfg
     };
-    assert!(format!("{cfg2:?}").contains("None"));
+    assert!(format!("{cfg2:?}").contains("unset"));
 }
 
 #[test]

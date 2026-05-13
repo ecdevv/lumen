@@ -57,12 +57,12 @@ fn cycle_next_returns_none_for_non_enum_field() {
 }
 
 #[test]
-fn api_key_round_trips_some_and_none() {
+fn api_key_round_trips_set_and_unset() {
     let mut cfg = Config::default();
     Field::ProviderApiKey.apply(&mut cfg, "sk-test").unwrap();
-    assert_eq!(cfg.provider.api_key.as_deref(), Some("sk-test"));
+    assert_eq!(cfg.provider.api_key, "sk-test");
     Field::ProviderApiKey.apply(&mut cfg, "").unwrap();
-    assert!(cfg.provider.api_key.is_none(), "empty input clears the key");
+    assert!(cfg.provider.api_key.is_empty(), "empty input clears the key");
 }
 
 #[test]

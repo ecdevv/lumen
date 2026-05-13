@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">lumen</h1>
+  <h1 align="center">Lumen</h1>
   <p align="center">A token-efficient, local-LLM-first coding agent CLI. Claude Code "light" with Pi-style modularity.</p>
 </p>
 
@@ -49,13 +49,37 @@ cargo install --path cli
 Drops the `lumen` binary into your Cargo bin directory (typically
 `~/.cargo/bin/`).
 
+### Arch Linux (local)
+
+```sh
+git clone https://github.com/ecdevv/lumen.git
+cd lumen/packaging
+makepkg -si
+```
+
+Installs `lumen` as a system package. Tracks the latest tagged
+release. Not yet on AUR - see [`packaging/PKGBUILD`](packaging/PKGBUILD).
+
 ## Configuration
 
-Lumen reads a layered config: defaults → `~/.config/lumen/config.toml`
-(XDG; created on first launch with documented defaults) → `LUMEN_*`
-env vars → CLI flags. The most common knobs are exposed live via
-the `/settings` slash command in the TUI; `/model <name>` switches
-the active model and persists to the config file.
+Lumen reads a layered config: defaults → `config.toml` (created on
+first launch with documented defaults) → `LUMEN_*` env vars → CLI
+flags. The most common knobs are exposed live via the `/settings`
+slash command in the TUI; `/model <name>` switches the active model
+and persists to the config file.
+
+State is split across two XDG-style directories: the **config dir**
+holds `config.toml`, and the **data dir** holds session transcripts
+and input history. Defaults per platform:
+
+|         | Config dir                             | Data dir                               |
+| ------- | -------------------------------------- | -------------------------------------- |
+| Linux   | `~/.config/lumen/`                     | `~/.local/share/lumen/`                |
+| Windows | `%APPDATA%\lumen\config\`              | `%APPDATA%\lumen\data\`                |
+| macOS   | `~/Library/Application Support/lumen/` | `~/Library/Application Support/lumen/` |
+
+Both are overridable via `[paths] config_dir` / `data_dir` in
+`config.toml`.
 
 Common keys:
 
@@ -64,8 +88,8 @@ auto_apply = "never"          # "never" | "safe" - see below
 
 [provider]
 base_url = "http://localhost:8080"
-model    = "default"
-api_key  = ""                 # leave empty for local servers
+model    = ""                 # empty = let the server pick its default
+api_key  = ""                 # empty = no auth (local llama.cpp default)
 
 [ui]
 auto_copy_on_select = true    # OSC 52 clipboard on drag-release

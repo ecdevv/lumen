@@ -6,8 +6,7 @@ Cargo.lock.bak
 *.snap.new
 *.pending-snap
 
-# Packaging artifacts (remove packaging/ when ready)
-packaging/
+# Packaging build outputs (PKGBUILD itself is tracked)
 packaging/pkg/
 packaging/src/
 packaging/*.pkg.tar.*

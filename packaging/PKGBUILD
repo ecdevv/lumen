@@ -1,0 +1,45 @@
+# Maintainer: ecdevv <ech2447@gmail.com>
+#
+# SCAFFOLD - tracks tagged releases (v0.1.0+). Runs locally via
+# `makepkg -si` from this directory. Not yet submitted to AUR;
+# two gaps still block accidental upload:
+#   - `sha256sums=('SKIP')` is a placeholder. Replace with the real
+#     tarball hash (`makepkg -g`) before any AUR push.
+#   - No `.SRCINFO` yet; generate with
+#     `makepkg --printsrcinfo > .SRCINFO` immediately before push.
+
+pkgname=lumen
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Token-efficient, local-LLM-first coding agent CLI'
+arch=('x86_64')
+url='https://github.com/ecdevv/lumen'
+license=('MIT OR Apache-2.0')
+depends=('gcc-libs' 'ripgrep')
+makedepends=('cargo')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+    cd "$pkgname-$pkgver"
+    export RUSTUP_TOOLCHAIN=stable
+    cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+    cd "$pkgname-$pkgver"
+    export RUSTUP_TOOLCHAIN=stable
+    export CARGO_TARGET_DIR=target
+    cargo build --frozen --release --bin lumen
+}
+
+check() {
+    cd "$pkgname-$pkgver"
+    export RUSTUP_TOOLCHAIN=stable
+    cargo test --frozen --release
+}
+
+package() {
+    cd "$pkgname-$pkgver"
+    install -Dm755 "target/release/lumen" "$pkgdir/usr/bin/lumen"
+}

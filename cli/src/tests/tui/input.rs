@@ -1369,6 +1369,10 @@ fn settings_overlay_ctrl_d_quits_through() {
 #[test]
 fn enter_runs_model_with_same_name_is_noop() {
     let mut app = test_app();
+    // Default model is "" (unset sentinel - opens the picker when
+    // typed as `/model ` with empty arg). Seed a real name so the
+    // `/model <name>` path is exercised against itself.
+    app.cfg.provider.model = "qwen2.5-coder".to_string();
     let current = app.cfg.provider.model.clone();
     type_str(&mut app, &format!("/model {current}"));
     handle_key(k(KeyCode::Enter, KeyModifiers::NONE), &mut app);

@@ -48,10 +48,15 @@ pub struct Config {
 pub struct ProviderConfig {
     /// HTTP base URL of the OpenAI-compatible endpoint.
     pub base_url: String,
-    /// Model identifier sent to the provider. Llama.cpp servers typically ignore this.
+    /// Model identifier sent to the provider. Empty string means
+    /// "let the server pick its default" - local single-model
+    /// llama-server ignores this anyway; multi-model proxies
+    /// (llama-swap, ollama, vLLM) route on it and need a real name.
     pub model: String,
-    /// API key, if the endpoint requires one. `None` for local llama.cpp.
-    pub api_key: Option<String>,
+    /// API key for authenticated providers. Empty string means no
+    /// auth header (the local llama.cpp default). Use a non-empty
+    /// value for OpenAI / Anthropic-via-proxy / etc.
+    pub api_key: String,
 }
 
 impl std::fmt::Debug for ProviderConfig {
@@ -61,9 +66,13 @@ impl std::fmt::Debug for ProviderConfig {
             .field("model", &self.model)
             .field(
                 "api_key",
-                // Preserve Some/None shape so the absence vs presence
-                // of a key is still visible; just hide the value.
-                &self.api_key.as_ref().map(|_| "<redacted>"),
+                // Show presence/absence but hide the value. Empty
+                // string is the "unset" sentinel.
+                &if self.api_key.is_empty() {
+                    "<unset>"
+                } else {
+                    "<redacted>"
+                },
             )
             .finish()
     }
@@ -197,8 +206,8 @@ impl Default for ProviderConfig {
     fn default() -> Self {
         Self {
             base_url: "http://localhost:8080".to_string(),
-            model: "default".to_string(),
-            api_key: None,
+            model: String::new(),
+            api_key: String::new(),
         }
     }
 }
@@ -375,12 +384,13 @@ impl Config {
              # remote providers (OpenAI, Anthropic-via-proxy) work too.\n\
              base_url = \"{base_url}\"\n\
              \n\
-             # Model identifier sent in completion requests. Local single-model\n\
-             # servers usually ignore this; multi-model proxies route on it.\n\
+             # Model identifier sent in completion requests. Empty = let the\n\
+             # server pick its default. Local single-model servers usually\n\
+             # ignore this anyway; multi-model proxies route on it.\n\
              model = \"{model}\"\n\
              \n\
-             # API key for authenticated providers. Leave empty for local servers\n\
-             # that don't require auth.\n\
+             # API key for authenticated providers. Empty = no auth header\n\
+             # (the default for local llama.cpp).\n\
              api_key = \"{api_key}\"\n\
              \n\
              [ui]\n\
@@ -394,7 +404,7 @@ impl Config {
             auto_apply = auto_apply_str,
             base_url = toml_basic_escape(&cfg.provider.base_url),
             model = toml_basic_escape(&cfg.provider.model),
-            api_key = toml_basic_escape(cfg.provider.api_key.as_deref().unwrap_or("")),
+            api_key = toml_basic_escape(&cfg.provider.api_key),
             auto_copy_on_select = cfg.ui.auto_copy_on_select,
             unicode_glyphs = cfg.ui.unicode_glyphs,
         );

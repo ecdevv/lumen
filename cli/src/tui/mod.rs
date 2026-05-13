@@ -255,7 +255,9 @@ async fn build_agent(
     let provider = Arc::new(
         HttpProvider::new(
             cfg.provider.base_url.clone(),
-            cfg.provider.api_key.clone(),
+            // Config uses "" as the unset sentinel; the provider takes
+            // Option so it can skip the bearer-auth header entirely.
+            (!cfg.provider.api_key.is_empty()).then(|| cfg.provider.api_key.clone()),
         )
         .context("init HTTP provider")?,
     );

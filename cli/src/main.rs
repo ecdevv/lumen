@@ -205,7 +205,7 @@ fn load_config_from(cli: &Cli, default_path: Option<PathBuf>) -> Result<Config> 
         cfg.provider.base_url = u.to_string();
     }
     if let Some(k) = cli.api_key.as_deref() {
-        cfg.provider.api_key = Some(k.to_string());
+        cfg.provider.api_key = k.to_string();
     }
     if let Some(a) = cli.auto_apply {
         cfg.auto_apply = a;

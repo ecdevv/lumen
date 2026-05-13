@@ -77,19 +77,23 @@ covers the common cases far more cheaply.
 ### Memory & history storage
 
 - **Conversation transcripts**: append-only JSONL per session at
-  `~/.local/state/lumen/sessions/<uuid>.jsonl`. Each line is one
+  `~/.local/share/lumen/sessions/<uuid>.jsonl`. Each line is one
   event (user msg, assistant msg, tool call, tool result, system
   event). Replayable, diffable, easy to truncate.
 - **Prompt-input history** (TUI up-arrow recall, like a shell):
-  plain-text file at `~/.local/state/lumen/input_history`, capped
+  plain-text file at `~/.local/share/lumen/input_history`, capped
   (last 5000 entries), de-duplicated.
 - **Cross-session memory** *(future)*: user-editable markdown at
   `~/.config/lumen/memory.md`, loaded as a system-prompt suffix;
   modified via `/remember` and `/forget`.
 - **Logs**: rotating tracing logs at
-  `~/.local/state/lumen/log/lumen.log` (separate from transcripts;
+  `~/.local/share/lumen/log/lumen.log` (separate from transcripts;
   for debugging, not replay).
 - All paths follow XDG Base Directory spec; all are configurable.
+- We use `data_dir()` (not `state_dir()`) from the `directories`
+  crate: `state_dir()` is Linux-only, so sessions/history/logs
+  would have nowhere to land on Windows or macOS. Matches the
+  convention shared by fish, nushell, and XDG-aware zsh.
 
 ### Auto-accept vs ask-before-edit
 

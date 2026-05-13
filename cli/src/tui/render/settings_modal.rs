@@ -122,7 +122,9 @@ fn display_value(field: Field, cfg: &lumen_core::Config) -> String {
     let raw = field.read(cfg);
     if field.sensitive() && !raw.is_empty() {
         "<redacted>".to_string()
-    } else if field.sensitive() {
+    } else if raw.is_empty() {
+        // Same sentinel for every empty field so model and api_key
+        // read consistently when both are at their "unset" default.
         "<none>".to_string()
     } else {
         raw
