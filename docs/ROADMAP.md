@@ -24,7 +24,7 @@ Seven high-level goals drive the phase plan below:
 
 | Phase | Version | Goal | Status |
 |---|---|---|---|
-| 0 | v0.1 | Foundation - minimal daily-use loop | code-complete (steps 1-13 + hardening); manual smoke test pending; distribution (AUR / crates.io) deferred |
+| 0 | v0.1 | Foundation - minimal daily-use loop | shipped as `v0.1.0` (tagged + pushed); distribution (AUR / crates.io) deferred |
 | 1 | v0.2 | Validation layer | not started |
 | 2 | v0.3 | Context optimization | not started |
 | 3 | v0.4 | Code review + patching | not started |

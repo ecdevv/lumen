@@ -25,16 +25,16 @@ modal), see the project-local skills under `.claude/skills/`.
 
 ## Progress
 
-**Phase 0 / v0.1.** **Code-complete** (steps 1-13 + post-step-13
-hardening pass closed the v0.1 code-review gaps: `/clear` reseeds
-the system prompt; shell always prompts under both `auto_apply`
-modes; `list_models` gets a per-request timeout; `sessions rm`
-validates its id; stale `Always`-variant comments swept). Next:
-**manual smoke test** + **GitHub push** as code-complete v0.1.
-Distribution (AUR / crates.io) is explicitly deferred per
+**Phase 0 / v0.1.** **Shipped** as `v0.1.0` (tagged + pushed).
+Steps 1-13 + post-step-13 hardening pass closed the v0.1
+code-review gaps; smoke-test pass surfaced and fixed the
+model-staleness bug (Agent now syncs `options.model` from config
+on each turn). Next milestone: **Phase 1 (validation layer)**.
+Distribution (AUR / crates.io) is still explicitly deferred per
 [`docs/DESIGN.md`](docs/DESIGN.md#locked-decisions) - the binary
-is packaging-ready, not yet uploaded. Full phase + step table in
-[`docs/ROADMAP.md`](docs/ROADMAP.md).
+is packaging-ready and the in-tree PKGBUILD works locally against
+the v0.1.0 tag, but nothing's been uploaded to a registry. Full
+phase + step table in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 If you stop mid-step, drop a few resume-bullets right under this
 line (next task, blocker, relevant file / commit) so the next

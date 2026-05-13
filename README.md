@@ -13,7 +13,7 @@ OpenAI, Anthropic-via-proxy, ...) through the same path.
 
 Built primarily for personal use; published in case it's useful to others.
 
-> **Status: v0.1 code-complete.** Install from source (see [Installation](#installation)). Package distribution to AUR / crates.io is intentionally deferred - see [`docs/DESIGN.md`](docs/DESIGN.md#locked-decisions).
+> **Status: v0.1.0 released.** Install from source (see [Installation](#installation)). Package distribution to AUR / crates.io is intentionally deferred - see [`docs/DESIGN.md`](docs/DESIGN.md#locked-decisions).
 
 ## Why
 
@@ -24,10 +24,15 @@ Built primarily for personal use; published in case it's useful to others.
 
 ## Prerequisites
 
-- Rust toolchain (see [`rust-toolchain.toml`](rust-toolchain.toml))
-- `rg` (ripgrep) on `$PATH` for the Grep tool
-- A running OpenAI-compatible LLM endpoint. Most common:
-  - [`llama-server`](https://github.com/ggerganov/llama.cpp/tree/master/examples/server) from llama.cpp, listening on `http://localhost:8080` by default
+Three things, installed once. Arch users going through the bundled [`packaging/PKGBUILD`](packaging/PKGBUILD) get the first two from pacman automatically; every other path (cargo, Windows, macOS, non-Arch Linux) installs them by hand.
+
+**1. Rust toolchain** - install [rustup](https://rustup.rs/) (it detects your platform and prints the right one-liner; on Windows it's an MSI). The repo pins stable via [`rust-toolchain.toml`](rust-toolchain.toml), so your first `cargo build` auto-fetches the right components.
+
+**2. ripgrep** (`rg` on `$PATH`) - the Grep tool shells out to it. Install instructions per platform are on the [ripgrep README](https://github.com/BurntSushi/ripgrep#installation). Verify with `rg --version`.
+
+**3. An OpenAI-compatible LLM endpoint** - lumen is just the client; it doesn't ship a model or a server. The default target is [`llama-server`](https://github.com/ggml-org/llama.cpp/tree/master/tools/server) from llama.cpp on `http://localhost:8080`; build / install steps are in the [llama.cpp README](https://github.com/ggml-org/llama.cpp#building-the-project), and [prebuilt releases](https://github.com/ggml-org/llama.cpp/releases) are available for Windows / macOS / Linux. Once it's running, point it at a GGUF model: `llama-server -m path/to/model.gguf`.
+
+Any other OpenAI-compatible server works just as well (ollama, vLLM, LM Studio's server mode, llama-swap, or a remote API like OpenAI / Anthropic-via-proxy) - set `[provider] base_url` and `api_key` in `config.toml` accordingly.
 
 ## Installation
 
