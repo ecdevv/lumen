@@ -633,8 +633,25 @@ fn apply_approval_option(app: &mut AppState, opt: ApprovalOption) {
 }
 
 fn submit(app: &mut AppState) {
+    // Pre-flight: empty model would fail at the provider with a
+    // cryptic 400. Surface it here as a clear note instead. Gate
+    // on actual user input first so a bare Enter on an empty
+    // buffer stays a no-op.
+    if app.mode == AppMode::Idle
+        && !app.input.lines().join("\n").trim().is_empty()
+        && app.cfg.provider.model.is_empty()
+    {
+        app.timeline
+            .push_note("no model selected - use /model or /settings".into());
+        return;
+    }
     if let Some(text) = check_and_take_input(app) {
-        let handle = spawn_turn(text.clone(), Arc::clone(&app.agent), app.agent_tx.clone());
+        let handle = spawn_turn(
+            text.clone(),
+            Arc::clone(&app.agent),
+            app.cfg.provider.model.clone(),
+            app.agent_tx.clone(),
+        );
         app.turn_handle = Some(handle);
         app.history.push(text);
     }
@@ -662,10 +679,16 @@ fn check_and_take_input(app: &mut AppState) -> Option<String> {
 fn spawn_turn(
     text: String,
     agent: Arc<Mutex<Agent>>,
+    model: String,
     tx: UnboundedSender<UiMsg>,
 ) -> JoinHandle<()> {
     tokio::spawn(async move {
         let mut a = agent.lock().await;
+        // Sync the agent's captured model with whatever the config
+        // currently says. /model and /settings only mutate the
+        // Config; without this push, the Agent keeps the build-time
+        // value forever.
+        a.set_model(model);
         let result = a
             .turn(text, |e| {
                 let _ = tx.send(UiMsg::Agent(e));

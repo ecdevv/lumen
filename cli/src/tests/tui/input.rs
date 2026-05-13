@@ -1430,6 +1430,9 @@ fn enter_on_no_match_is_noop() {
 #[tokio::test]
 async fn enter_submits_input_to_timeline_pushes_history_and_clears() {
     let mut app = test_app();
+    // Default model is "" (unset); submit() gates on a non-empty
+    // model name so the turn can dispatch.
+    app.cfg.provider.model = "qwen2.5-coder".to_string();
     type_str(&mut app, "hello");
     handle_key(k(KeyCode::Enter, KeyModifiers::NONE), &mut app);
 

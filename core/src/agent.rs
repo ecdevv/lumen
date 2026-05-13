@@ -81,8 +81,11 @@ Response style:
 /// Runtime knobs for one [`Agent`].
 #[derive(Debug, Clone)]
 pub struct AgentOptions {
-    /// Model identifier sent to the provider. Local llama.cpp servers
-    /// generally ignore this.
+    /// Model identifier sent to the provider. Empty string is the
+    /// "unset" sentinel - callers should set a real name before
+    /// dispatching a turn. Some single-model `llama-server` builds
+    /// ignore the field, but multi-model proxies (llama-swap, ollama,
+    /// vLLM) route on it and stricter servers reject empty values.
     pub model: String,
     /// Sampling temperature; `None` lets the provider pick a default.
     pub temperature: Option<f32>,
@@ -98,7 +101,7 @@ pub struct AgentOptions {
 impl Default for AgentOptions {
     fn default() -> Self {
         Self {
-            model: "default".into(),
+            model: String::new(),
             temperature: None,
             max_tokens: None,
             max_tool_iterations: 50,
@@ -185,6 +188,15 @@ impl Agent {
     /// which enforces the "first message, exactly once" invariant.
     pub fn session_mut(&mut self) -> &mut Session {
         &mut self.session
+    }
+
+    /// Update the model identifier used in subsequent requests.
+    /// `AgentOptions` captures the model at construction; `/model`
+    /// and `/settings` mutate the Config but the Agent needs to be
+    /// told about it explicitly. Caller is responsible for not
+    /// switching mid-turn (the next `turn()` picks it up).
+    pub fn set_model(&mut self, model: String) {
+        self.options.model = model;
     }
 
     /// Clone of the shared provider handle. Lets callers invoke
